@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NODOS — Registro</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#22c55e">
+<style>
+  :root{--fondo:#0b0f14;--panel:#121820;--linea:#1e2937;--texto:#e6edf3;--suave:#8b98a5;
+        --verde:#22c55e;--rojo:#ef4444;--campo:#0b0f14}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--fondo);color:var(--texto);font-family:system-ui,Roboto,sans-serif;padding-bottom:90px}
+  header{text-align:center;padding:18px 12px 8px}
+  .logo{width:52px;height:52px;border-radius:16px;margin:0 auto 8px;background:linear-gradient(135deg,#14532d,#22c55e);
+        display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff}
+  h1{font-size:18px} .sub{color:var(--suave);font-size:12px;margin-top:2px}
+  nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#0e131a;border-top:1px solid var(--linea);
+      z-index:10;max-width:720px;margin:0 auto}
+  nav button{flex:1;background:none;border:none;color:var(--suave);font-size:10px;padding:10px 2px;cursor:pointer}
+  nav button span{display:block;font-size:19px;margin-bottom:2px}
+  nav button.on{color:var(--verde)}
+  main{max-width:720px;margin:0 auto;padding:14px}
+  .card{display:none;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:18px}
+  .card.on{display:block}
+  .card h2{font-size:15px;margin-bottom:4px}
+  .card .desc{color:var(--suave);font-size:12px;margin-bottom:14px}
+  label{display:block;font-size:12px;color:var(--suave);margin:12px 0 4px}
+  input,select,textarea{width:100%;background:var(--campo);border:1px solid var(--linea);border-radius:10px;
+        color:var(--texto);padding:11px 12px;font-size:14px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--verde)}
+  .fila{display:flex;gap:10px} .fila>*{flex:1}
+  .btn{width:100%;margin-top:18px;padding:13px;border:none;border-radius:12px;font-size:15px;font-weight:700;
+       color:#fff;cursor:pointer;background:linear-gradient(135deg,#16a34a,#22c55e)}
+  .btn:active{transform:scale(.98)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{padding:7px 12px;border-radius:999px;border:1px solid var(--linea);font-size:12px;cursor:pointer;color:var(--suave)}
+  .chip.on{background:rgba(34,197,94,.15);border-color:var(--verde);color:#86efac}
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:50;max-width:92%;
+         padding:12px 18px;border-radius:12px;font-size:13px;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .toast.ok{background:#14532d;color:#dcfce7;display:block}
+  .toast.err{background:#7f1d1d;color:#fecaca;display:block}
+  .punto{margin-bottom:8px}
+  .alertas .al{padding:9px 12px;border-radius:10px;background:rgba(239,68,68,.08);
+               border:1px solid rgba(239,68,68,.3);font-size:12px;margin-bottom:8px;color:#fca5a5}
+  .alertas .ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#86efac}
+  .regla{font-size:11px;color:var(--suave);margin-top:6px}
+  code{background:#000;border-radius:6px;padding:1px 5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⬡</div>
+  <h1>NODOS · Registro</h1>
+  <div class="sub">Conciencia → Tecnología → Comunidad · reglamento codificado</div>
+</header>
+
+<div id="toast" class="toast"></div>
+<main>
+<nav>
+  <button data-c="c-nodo"><span>⬡</span>Nodo</button>
+  <button data-c="c-miembro" class="on"><span>👤</span>Miembro</button>
+  <button data-c="c-mov"><span>💰</span>Movimiento</button>
+  <button data-c="c-act"><span>🛠️</span>Proyecto</button>
+  <button data-c="c-mas"><span>🤝</span>Asamblea</button>
+</nav>
+
+<!-- NODO -->
+<section class="card" id="c-nodo">
+  <h2>Abrir un NODO</h2>
+  <div class="desc">Cada sector, emprendimiento o grupo es un punto de la red nacional.</div>
+  <label>Código único <span id="sug-cod" class="sub"></span></label>
+  <input id="n-codigo" placeholder="NODO-NORTE-101">
+  <label>Nombre</label><input id="n-nombre" placeholder="NODO Barrio Norte">
+  <label>Tipo</label>
+  <select id="n-tipo"><option value="comunidad">Comunidad / sector</option>
+    <option value="grupo_local">Grupo local</option><option value="emprendimiento">Emprendimiento</option>
+    <option value="hogar">Hogar</option></select>
+  <label>Nodo padre (red jerárquica)</label>
+  <select id="n-padre"></select>
+  <label>Etapa de activación territorial</label>
+  <select id="n-etapa"><option value="reunir">1 · Reunir (Conciencia)</option>
+    <option value="organizar">2 · Organizar (Tecnología)</option>
+    <option value="actuar">3 · Actuar (Comunidad)</option>
+    <option value="activo">Activo</option></select>
+  <div class="fila"><div><label>Sector</label><input id="n-sector" placeholder="Barrio Norte"></div>
+  <div><label>País</label><input id="n-pais" value="Venezuela"></div></div>
+  <button class="btn" onclick="enviar('nodo')">Registrar nodo</button>
+</section>
+
+<!-- MIEMBRO -->
+<section class="card on" id="c-miembro">
+  <h2>Registrar miembro</h2>
+  <div class="desc">Filtro ético (Art. 1): solo se admite con valores declarados. No se admiten condenas por manipulación o conflicto de interés no declarado.</div>
+  <label>Nodo al que se incorpora</label><select id="m-nodo"></select>
+  <label>Nombres y apellidos</label><input id="m-nombres" placeholder="Nombre Apellido">
+  <label>Cédula / documento</label><input id="m-ci" placeholder="V-12345678">
+  <label>Contacto (correo o teléfono)</label><input id="m-contacto" placeholder="correo@ejemplo">
+  <label>¿Antecedentes verificados por el núcleo?</label>
+  <select id="m-antec"><option value="true">Sí, verificados</option><option value="false">Aún no</option></select>
+  <label>Valores que declara (toca los suyos)</label>
+  <div class="chips" id="m-valores"></div>
+  <button class="btn" onclick="enviar('miembro')">Registrar miembro</button>
+</section>
+
+<!-- MOVIMIENTO -->
+<section class="card" id="c-mov">
+  <h2>Registrar movimiento</h2>
+  <div class="desc">Transparencia (Art. 4): cada aporte o gasto entra al libro contable compartido. Nadie aprueba solo: se necesita doble verificación.</div>
+  <label>Nodo</label><select id="v-nodo"></select>
+  <div class="fila"><div><label>Tipo</label>
+    <select id="v-tipo"><option value="ingreso">Ingreso / aporte</option>
+    <option value="egreso">Egreso / gasto</option></select></div>
+  <div><label>Monto</label><input id="v-monto" type="number" min="1" step="0.01" inputmode="decimal"></div>
+  <div><label>Moneda</label><input id="v-moneda" value="USD"></div></div>
+  <label>Registrado por</label><select id="v-registrador"></select>
+  <label>Descripción</label><input id="v-desc" placeholder="Compra de material / aporte vecinal">
+  <label>Soporte (factura/recibo — obligatorio para egresos antes de aprobar)</label>
+  <input id="v-soporte" placeholder="FACT-2026-0007">
+  <button class="btn" onclick="enviar('movimiento')">Registrar en el libro</button>
+</section>
+
+<!-- PROYECTO / ACTIVIDAD -->
+<section class="card" id="c-act">
+  <h2>Nuevo proyecto o taller</h2>
+  <div class="desc">Continuidad (Art. 5): toda actividad lleva titular y suplente capacitado.</div>
+  <label>Nodo</label><select id="a-nodo"></select>
+  <label>Tipo</label>
+  <select id="a-tipo"><option value="capacitacion">Capacitación</option>
+    <option value="taller">Taller</option><option value="proyecto_productivo">Proyecto productivo</option>
+    <option value="apoyo_social">Apoyo social</option></select>
+  <label>Título</label><input id="a-titulo" placeholder="Taller de herramientas digitales">
+  <label>Descripción</label><input id="a-desc" placeholder="Objetivo y alcance">
+  <div class="fila"><div><label>Titular</label><select id="a-titular"></select></div>
+  <div><label>Suplente (distinto)</label><select id="a-suplente"></select></div></div>
+  <div class="regla">La base rechaza titular = suplente: la acción comunitaria no se detiene por una ausencia.</div>
+  <button class="btn" onclick="enviar('actividad')">Abrir actividad</button>
+</section>
+
+<!-- MAS: assemblya, verificación, talento -->
+<section class="card" id="c-mas">
+  <h2>Asamblea, verificación y talentos</h2>
+  <div class="desc">Herramientas de gobernanza cotidiana.</div>
+
+  <h2 style="font-size:13px;">🗓️ Publicar asamblea (agenda obligatoria — Art. 2)</h2>
+  <label>Nodo</label><select id="r-nodo"></select>
+  <label>Título</label><input id="r-titulo" placeholder="Asamblea mensual">
+  <label>Fecha y hora</label><input id="r-fecha" type="datetime-local">
+  <label>Moderador neutral (máx. 3 min por persona)</label><select id="r-moderador"></select>
+  <label>Puntos de la agenda (uno por línea)</label>
+  <textarea id="r-puntos" rows="3" placeholder="1. Bienvenida&#10;2. Lectura del reglamento&#10;3. Plan del mes"></textarea>
+  <button class="btn" onclick="enviar('reunion')">Publicar asamblea</button>
+
+  <h2 style="font-size:13px;margin-top:22px;">✅ Verificar un movimiento (2.ª firma — Art. 4)</h2>
+  <div class="fila"><div><label>Verificador (≠ registrador)</label><select id="x-verificador"></select></div>
+  <div><label>Resultado</label><select id="x-resultado"><option value="true">Conforme</option><option value="false">Observado</option></select></div></div>
+  <label>Observaciones</label><input id="x-obs" placeholder="opcional">
+  <button class="btn" onclick="verificar()">Anotar verificación</button>
+  <div class="regla" id="pendientes"></div>
+
+  <h2 style="font-size:13px;margin-top:22px;">🧠 Mapear talento (quién sabe, enseña)</h2>
+  <div class="fila"><div><label>Miembro</label><select id="t-miembro"></select></div>
+  <div><label>Talento</label><select id="t-talento"></select></div></div>
+  <label class="regla"><input type="checkbox" id="t-ensena" checked> Puede enseñar a otros</label>
+  <button class="btn" onclick="enviar('talento')">Guardar talento</button>
+
+  <h2 style="font-size:13px;margin-top:22px;">🚨 Alertas activas</h2>
+  <div class="alertas" id="alertas"></div>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const toast = (msg, ok) => {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  setTimeout(() => t.className = 'toast', 5200);
+};
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.card').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.c).classList.add('on');
+});
+
+const Llenar = (id, lista, texto, valor) => {
+  const sel = $(id); if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = lista.map(x => `<option value="${x[valor]}">${x[texto]}</option>`).join('');
+  if (prev) sel.value = prev;
+};
+
+let CAT = null;
+async function refresh(){
+  try{ CAT = await (await fetch('/api/catalogos', {cache:'no-store'})).json(); }
+  catch(e){ return; }
+  Llenar('n-padre', [{id:'', codigo:'(raíz, sin padre)'}, ...CAT.nodos], 'codigo', 'id');
+  Llenar('m-nodo', CAT.nodos, 'codigo', 'id');
+  ['v-nodo','a-nodo','r-nodo'].forEach(i => Llenar(i, CAT.nodos, 'nombre', 'id'));
+  Llenar('v-registrador', CAT.miembros, 'nombre', 'id');
+  Llenar('a-titular', CAT.miembros, 'nombre', 'id');
+  Llenar('a-suplente', CAT.miembros, 'nombre', 'id');
+  Llenar('r-moderador', CAT.miembros, 'nombre', 'id');
+  Llenar('x-verificador', CAT.miembros, 'nombre', 'id');
+  Llenar('t-miembro', CAT.miembros, 'nombre', 'id');
+  Llenar('t-talento', CAT.talentos, x=>x, x=>x);
+  if (!$('m-nombres').value && CAT.nodos.length)
+    $('sug-cod').textContent = '(sugerido: NODO-' + Math.floor(100+Math.random()*900) + ')';
+  const mv = CAT.miembros && CAT.miembros.map(m=>m.id);
+  $('m-valores').innerHTML = (CAT.valores||[]).map(v =>
+    `<span class="chip" onclick="this.classList.toggle('on')">${v}</span>`).join('');
+  const p = (CAT.alertas||[]);
+  $('alertas').innerHTML = p.length
+    ? p.map(a=>`<div class="al">🚨 <b>${a.tipo}</b> · ${a.nodo_codigo}<br>${a.detalle}</div>`).join('')
+    : '<div class="al ok">✓ Sin alertas: todo en orden</div>';
+  if (CAT.miembros) $('pendientes').textContent =
+    'Recuerda: todo egreso necesita 2 verificaciones favorables de personas distintas a quien registró.';
+}
+
+async function enviar(tipo){
+  const d = {};
+  if (tipo==='nodo') Object.assign(d, {
+    codigo:$('n-codigo').value.trim() || null, nombre:$('n-nombre').value.trim(),
+    tipo_nodo:$('n-tipo').value, nodo_padre:$('n-padre').value || null,
+    etapa:$('n-etapa').value, sector:$('n-sector').value.trim()||'—', pais:$('n-pais').value.trim()||'—'});
+  if (tipo==='miembro') Object.assign(d, {
+    nodo:$('m-nodo').value, nombres:$('m-nombres').value.trim(), ci:$('m-ci').value.trim(),
+    contacto:$('m-contacto').value.trim(), antecedentes:$('m-antec').value === 'true',
+    valores:[...document.querySelectorAll('#m-valores .chip.on')].map(c=>c.textContent)});
+  if (tipo==='movimiento') Object.assign(d, {
+    nodo:$('v-nodo').value, tipo:$('v-tipo').value, monto:$('v-monto').value,
+    moneda:$('v-moneda').value.trim(), descripcion:$('v-desc').value.trim(),
+    registrador:$('v-registrador').value, soporte:$('v-soporte').value.trim()});
+  if (tipo==='actividad') Object.assign(d, {
+    nodo:$('a-nodo').value, tipo_actividad:$('a-tipo').value, titulo:$('a-titulo').value.trim(),
+    descripcion:$('a-desc').value.trim(), titular:$('a-titular').value, suplente:$('a-suplente').value});
+  if (tipo==='reunion') Object.assign(d, {
+    nodo:$('r-nodo').value, titulo:$('r-titulo').value.trim(), fecha:$('r-fecha').value,
+    moderador:$('r-moderador').value,
+    puntos:$('r-puntos').value.split('\\n').map(s=>s.replace(/^\\d+\\.?\\s*/,'').trim()).filter(Boolean)});
+  if (tipo==='talento') Object.assign(d, {
+    miembro:$('t-miembro').value, talento:$('t-talento').value, ensena:$('t-ensena').checked});
+
+  if (!tipo) return;
+  try{
+    const r = await (await fetch('/api/registro/'+tipo, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(d)})).json();
+    toast(r.ok ? '✓ ' + r.mensaje : '⚠️ ' + (r.error||'no se pudo registrar'), r.ok);
+    if (r.ok) refresh();
+  }catch(e){ toast('✗ ' + e, false); }
+}
+
+async function verificar(){
+  const id = prompt('ID del movimiento a verificar (aparece al registrarlo):');
+  if (!id) return;
+  const r = await (await fetch('/api/registro/verificacion', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({movimiento:+id, verificador:$('x-verificador').value,
+                          resultado:$('x-resultado').value === 'true',
+                          observaciones:$('x-obs').value.trim()})})).json();
+  toast(r.ok ? '✓ ' + r.mensaje : '⚠️ ' + (r.error||''), r.ok);
+}
+
+refresh();
+navigator.serviceWorker?.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>
