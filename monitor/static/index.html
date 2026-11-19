@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NODOS — Monitoreo</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#22c55e">
+<style>
+  :root{
+    --fondo:#0b0f14; --panel:#121820; --linea:#1e2937; --texto:#e6edf3; --suave:#8b98a5;
+    --verde:#22c55e; --verde-osc:#166534; --rojo:#ef4444; --ambar:#f59e0b; --azul:#3b82f6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--fondo); color:var(--texto); font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; padding:16px; padding-bottom:48px}
+  header{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px}
+  .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#14532d,#22c55e); display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px}
+  h1{font-size:20px}
+  .sub{color:var(--suave); font-size:13px}
+  #estado{margin-left:auto; font-size:12px; color:var(--suave)}
+  .cuerpo{background:var(--panel); color:#fff; padding:3px 8px; border-radius:999px; font-size:12px}
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px}
+  .kpi{background:var(--panel); border:1px solid var(--linea); border-radius:14px; padding:14px}
+  .kpi .n{font-size:26px; font-weight:700}
+  .kpi .t{color:var(--suave); font-size:12px; margin-top:2px}
+  .kpi.verde .n{color:var(--verde)} .kpi.rojo .n{color:var(--rojo)} .kpi.ambar .n{color:var(--ambar)}
+  section{background:var(--panel); border:1px solid var(--linea); border-radius:14px; padding:16px; margin-bottom:16px}
+  section h2{font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px}
+  .pill{font-size:11px; padding:2px 8px; border-radius:999px; background:var(--verde-osc); color:#bbf7d0}
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th{color:var(--suave); text-align:left; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; padding:8px 6px; border-bottom:1px solid var(--linea)}
+  td{padding:8px 6px; border-bottom:1px solid var(--linea)}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600}
+  .t-ingreso{background:rgba(34,197,94,.15); color:#4ade80}
+  .t-egreso{background:rgba(239,68,68,.15); color:#f87171}
+  .t-aprobado,.t-activo{background:rgba(34,197,94,.15); color:#4ade80}
+  .t-registrado,.t-planificado{background:rgba(59,130,246,.15); color:#93c5fd}
+  .t-reunir,.t-organizar,.t-actuar{background:rgba(245,158,11,.15); color:#fcd34d}
+  .t-alerta{background:rgba(239,68,68,.15); color:#f87171}
+  .alerta{display:flex; gap:10px; padding:10px; border-radius:10px; background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); margin-bottom:8px; font-size:13px}
+  .ok{display:flex; gap:10px; padding:10px; border-radius:10px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); font-size:13px; color:#86efac}
+  .barra{height:8px; background:var(--linea); border-radius:99px; overflow:hidden; margin-top:6px}
+  .barra i{display:block; height:100%; background:linear-gradient(90deg,#16a34a,#4ade80)}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media (max-width:760px){.grid2{grid-template-columns:1fr} .ocultar-movil{display:none}}
+  .vacio{color:var(--suave); font-size:13px; font-style:italic}
+  footer{color:var(--suave); font-size:12px; text-align:center; margin-top:8px}
+  footer kbd{background:#000; border:1px solid var(--linea); border-radius:6px; padding:2px 6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⬡</div>
+  <div>
+    <h1>NODOS · Conciencia, Tecnología y Comunidad</h1>
+    <div class="sub">Panel de monitoreo de la red — transparencia en tiempo real</div>
+  </div>
+  <span id="estado">conectando…</span>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<section>
+  <h2>Alertas del sistema <span class="pill" id="pill-alertas">0</span></h2>
+  <div id="alertas"></div>
+</section>
+
+<div class="grid2">
+  <section>
+    <h2>Red de nodos</h2>
+    <table><thead><tr><th>Nodo</th><th>Etapa</th><th class="ocultar-movil">Miembros</th><th class="ocultar-movil">Activos</th><th>Saldo</th></tr></thead>
+    <tbody id="nodos"></tbody></table>
+  </section>
+  <section>
+    <h2>Actividades (titular → suplente)</h2>
+    <table><thead><tr><th>Título</th><th>Estado</th><th class="ocultar-movil">Equipo</th></tr></thead>
+    <tbody id="actividades"></tbody></table>
+  </section>
+</div>
+
+<section>
+  <h2>Libro contable compartido <span class="pill" id="pill-mov">0</span></h2>
+  <table><thead><tr><th>Nodo</th><th>Tipo</th><th>Descripción</th><th class="ocultar-movil">Soporte</th><th>Monto</th><th class="ocultar-movil">Fecha</th><th>Estado</th><th class="ocultar-movil">Dob. verif.</th></tr></thead>
+  <tbody id="libro"></tbody></table>
+</section>
+
+<footer>
+  Actualización automática cada 30 s · <kbd>Ctrl+R</kbd> fuerza recarga<br>
+  <span class="sub">Reglamento RGL-NOD-001 codificado en la base · Matriz Fundacional: Conciencia → Tecnología → Comunidad</span>
+</footer>
+
+<script>
+const fmt = new Intl.NumberFormat('es-VE', {style:'currency', currency:'USD', maximumFractionDigits:0});
+
+function cards(kpi){
+  const saldo = (kpi.ingresos||0) - (kpi.egresos||0);
+  return [
+    ['nodos','Nodos activos','verde', kpi.nodos],
+    ['miembros','Miembros activos','verde', kpi.miembros],
+    ['actividades','Proyectos/talleres','ambar', kpi.actividades],
+    ['activos','Activos tecnológicos','ambar', kpi.activos],
+    ['reuniones','Asambleas','azul', kpi.reuniones],
+    ['saldo','Saldo de la red', saldo>=0?'verde':'rojo', fmt.format(saldo)],
+  ];
+}
+
+function tag(estado){
+  const c = (estado||'').toLowerCase();
+  const clase = ['ingreso','egreso','aprobado','registrado','activo','planificado','reunir','organizar','actuar']
+    .includes(c) ? 't-'+c : 't-planificado';
+  return '<span class="tag '+clase+'">'+estado+'</span>';
+}
+
+function render(d){
+  document.getElementById('estado').innerHTML = d.errores
+    ? '<span class="cuerpo" style="background:#7f1d1d">⚠ verificando detalles</span>'
+    : '<span class="cuerpo">✓ actualizado '+d.generado+'</span>';
+
+  const kpis = document.getElementById('kpis');
+  if (d.kpi) kpis.innerHTML = cards(d.kpi).map(([,t,c,v]) =>
+      `<div class="kpi ${c}"><div class="n">${v??'—'}</div><div class="t">${t}</div></div>`).join('');
+
+  const maxSaldo = Math.max(1, ...(d.nodos||[]).map(n=>Math.abs(+n.saldo||0)));
+  document.getElementById('nodos').innerHTML = (d.nodos||[]).length
+    ? d.nodos.map(n=>`<tr>
+        <td><b>${n.codigo}</b><div class="sub">${n.nombre}</div>
+          <div class="barra"><i style="width:${Math.round(100*Math.abs(+n.saldo||0)/maxSaldo)}%"></i></div></td>
+        <td>${tag(n.etapa)}</td>
+        <td class="ocultar-movil">${n.miembros}</td>
+        <td class="ocultar-movil">${n.activos}</td>
+        <td style="color:${n.saldo>=0?'#4ade80':'#f87171'}">${fmt.format(n.saldo)}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" class="vacio">Sin nodos registrados — carga sql/05_datos_ejemplo_arranque.sql</td></tr>';
+
+  document.getElementById('actividades').innerHTML = (d.actividades||[]).length
+    ? d.actividades.map(a=>`<tr><td><b>${a.titulo}</b><div class="sub">${a.nodo}</div></td>
+        <td>${tag(a.estado)}</td>
+        <td class="ocultar-movil sub">${a.titular} → ${a.suplente}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="vacio">Sin actividades todavía</td></tr>';
+
+  const movs = d.libro||[];
+  document.getElementById('pill-mov').textContent = movs.length;
+  document.getElementById('libro').innerHTML = movs.length
+    ? movs.map(m=>`<tr>
+        <td class="sub">${m.nodo}</td><td>${tag(m.tipo)}</td><td>${m.descripcion}</td>
+        <td class="ocultar-movil sub">${m.soporte_referencia||'—'}</td>
+        <td>${fmt.format(m.monto)}</td><td class="ocultar-movil sub">${m.fecha}</td>
+        <td>${tag(m.estado)}</td>
+        <td class="ocultar-movil">${m.verificaciones}/2</td></tr>`).join('')
+    : '<tr><td colspan="8" class="vacio">Sin movimientos registrados</td></tr>';
+
+  const al = d.alertas||[];
+  document.getElementById('pill-alertas').textContent = al.length;
+  document.getElementById('pill-alertas').background = al.length ? 'var(--rojo)' : 'var(--verde-osc)';
+  document.getElementById('alertas').innerHTML = al.length
+    ? al.map(a=>`<div class="alerta">🚨 <div><b>${a.tipo}</b> · ${a.nodo_codigo}<br>${a.detalle}</div></div>`).join('')
+    : '<div class="ok">✓ Sin alertas: transparencia, custodia, continuidad y backups al día</div>';
+
+  if (d.errores && d.errores.red) {
+    document.getElementById('alertas').innerHTML +=
+      `<div class="alerta">ℹ️ <div><b>Falta cargar el esquema</b><br>Ejecuta por terminal:<br>
+       <code>psql -d nodos -f base-de-datos/sql/01_esquema.sql</code> (y los 4 restantes en orden 01→05)</div></div>`;
+  }
+}
+
+async function tick(){
+  try{
+    const r = await fetch('/api/all', {cache:'no-store'});
+    render(await r.json());
+  }catch(e){
+    document.getElementById('estado').innerHTML =
+      '<span class="cuerpo" style="background:#7f1d1d">✗ servidor inaccesible</span>';
+  }
+}
+tick();
+setInterval(tick, 30000);
+</script>
+</body>
+</html>
