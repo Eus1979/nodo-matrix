@@ -9,6 +9,8 @@
 -- protección de datos.
 -- ============================================================================
 
+BEGIN;
+
 -- ------------------------------------------------------------------
 -- 1) NODO RAÍZ (coordinación país) + 2 nodos hijos de sectores
 -- ------------------------------------------------------------------
@@ -201,3 +203,8 @@ WHERE n.codigo = 'NODO-OESTE-100'
 -- SELECT * FROM nodos.vw_panel_nodo;
 -- SELECT * FROM nodos.vw_libro_contable;
 -- SELECT * FROM nodos.vw_red_nodos;
+
+COMMIT;
+-- TODO el dataset se carga en una sola transacción: así el trigger del
+-- ART. 3 (mínimo 2 custodios por activo) solo se evalúa al final,
+-- cuando los custodios ya existen.
